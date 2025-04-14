@@ -8,6 +8,10 @@ use yii\web\Response;
 
 class DbController extends Controller
 {
+    public function actionIndex()
+    {
+        return $this->render('index');
+    }
     public function actionCreateDatabase()
     {
         return $this->render('create-database');

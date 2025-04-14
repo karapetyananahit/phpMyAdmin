@@ -20,7 +20,7 @@ class SidebarWidget extends Widget
                 $tables = $connection->createCommand("SHOW TABLES")->queryColumn();
                 $tablesPerDb[$db] = $tables;
             } catch (\yii\db\Exception $e) {
-                $tablesPerDb[$db] = []; // skip if access denied
+                $tablesPerDb[$db] = [];
             }
         }
 
