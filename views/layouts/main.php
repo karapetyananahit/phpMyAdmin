@@ -59,46 +59,14 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 </header>
 
 <main id="main" class="flex-shrink-0" role="main">
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 bg-light border-end vh-100 overflow-auto" style="position: fixed;">
-                <h5 class="mt-3">Databases</h5>
-                <?php
-                $connection = Yii::$app->db;
-                $dbs = $connection->createCommand("
-                    SELECT schema_name FROM information_schema.schemata 
-                    WHERE schema_name NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys', 'phpmyadmin')
-                ")->queryColumn();
-                foreach ($dbs as $db) {
-                    echo "<strong>$db</strong><br>";
-                    try {
-                        $connection->createCommand("USE `$db`")->execute();
-                        $tables = $connection->createCommand("SHOW TABLES")->queryColumn();
-                        foreach ($tables as $table) {
-                            $url = \yii\helpers\Url::to(['db/view-table', 'db' => $db, 'table' => $table]);
-                            echo "<a class='d-block ms-3 mb-1' href='$url'>$table</a>";
-                        }
-                    } catch (Exception $e) {}
-                }
-                ?>
-                <hr>
-                <a href="<?= \yii\helpers\Url::to(['db/create-database']) ?>" class="btn btn-success btn-sm w-100 mb-2">➕ Create Database</a>
-            </div>
-
-            <!-- Main Content -->
-            <div class="col-md-9 offset-md-3 col-lg-10 offset-lg-2 pt-3">
-                <?php if (!empty($this->params['breadcrumbs'])): ?>
-                    <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
-                <?php endif ?>
-                <?= Alert::widget() ?>
-                <?= $content ?>
-            </div>
-        </div>
+    <div class="container">
+        <?php if (!empty($this->params['breadcrumbs'])): ?>
+            <?= Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]) ?>
+        <?php endif ?>
+        <?= Alert::widget() ?>
+        <?= $content ?>
     </div>
 </main>
-
-
 
 <footer id="footer" class="mt-auto py-3 bg-light">
     <div class="container">
