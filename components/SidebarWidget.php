@@ -24,7 +24,7 @@ class SidebarWidget extends Widget
             }
         }
 
-        return $this->render('//partials/_sidebar', ['databases' => $databases,
+        return $this->render('/db/partials/_sidebar', ['databases' => $databases,
             'tablesPerDb' => $tablesPerDb
         ]);
     }

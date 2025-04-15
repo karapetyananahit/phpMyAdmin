@@ -7,7 +7,8 @@ use app\assets\AppAsset;
 use app\widgets\Alert;
 use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
-
+use yii\web\JqueryAsset;
+JqueryAsset::register($this);
 
 AppAsset::register($this);
 
@@ -19,6 +20,7 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
 $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
 $this->registerCssFile('@web/css/db.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
+$this->registerJsFile('@web/js/db-sidebar.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 
 ?>
 <?php $this->beginPage() ?>

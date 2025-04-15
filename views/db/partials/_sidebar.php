@@ -30,8 +30,8 @@ use yii\helpers\Url;
                     </span>
 
                     <div class="flex-grow-1">
-                        <a href="<?= Url::to(['db/view-database', 'db' => $db]) ?>"
-                           class="text-decoration-none fw-semibold text-dark db-link-hover">
+                        <a href="#" class="db-link-hover" data-url="<?= Url::to(['db/load-tables']) ?>">
+
                             <?= Html::encode($db) ?>
                         </a>
                         <ul class="list-unstyled ms-4 mt-1 table-list collapse" id="tables-<?= Html::encode($db) ?>">
