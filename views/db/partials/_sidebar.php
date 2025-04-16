@@ -6,7 +6,6 @@ use yii\helpers\Url;
 /** @var array $tablesPerDb */
 ?>
 
-
 <div class="sidebar-wrapper border-end pe-2 bg-white shadow-sm"
      style="width: 300px; height: 100vh; position: fixed; top: 0; left: 0; overflow-y: auto; background-color: white; z-index: 1000;">
     <div class="text-center py-3 border-bottom bg-white sticky-top" style="z-index: 1010;">
@@ -18,7 +17,6 @@ use yii\helpers\Url;
         <a href="<?= Url::to(['db/create-database']) ?>" class="btn btn-sm btn-outline-success">
             <i class="fas fa-plus me-1"></i>New
         </a>
-
     </div>
 
     <ul class="list-unstyled ps-3 pe-2 pt-2">
@@ -30,10 +28,13 @@ use yii\helpers\Url;
                     </span>
 
                     <div class="flex-grow-1">
-                        <a href="#" class="db-link-hover" data-url="<?= Url::to(['db/load-tables']) ?>">
-
+                        <a href="#"
+                           class="db-link-hover db-toggle text-decoration-none"
+                           data-db="<?= Html::encode($db) ?>"
+                           data-url="<?= Url::to(['db/load-tables', 'db' => $db]) ?>">
                             <?= Html::encode($db) ?>
                         </a>
+
                         <ul class="list-unstyled ms-4 mt-1 table-list collapse" id="tables-<?= Html::encode($db) ?>">
                             <?php if (!empty($tablesPerDb[$db])): ?>
                                 <?php foreach ($tablesPerDb[$db] as $table): ?>
@@ -56,28 +57,68 @@ use yii\helpers\Url;
 <?php
 $js = <<<JS
 document.querySelectorAll('.toggle-table').forEach(function(toggleBtn) {
-    toggleBtn.addEventListener('click', function() {
-        var db = this.getAttribute('data-db');
-        var tableList = document.getElementById('tables-' + db);
-        var icon = this.querySelector('i');
-        var isCollapsed = tableList.classList.contains('collapse');
+    var db = toggleBtn.getAttribute('data-db');
+    var tableList = document.getElementById('tables-' + db);
+    var icon = toggleBtn.querySelector('i');
 
-        if (isCollapsed) {
-            tableList.classList.remove('collapse');
-            icon.classList.remove('fa-angle-right');
-            icon.classList.add('fa-angle-down');
-        } else {
-            tableList.classList.add('collapse');
-            icon.classList.remove('fa-angle-down');
-            icon.classList.add('fa-angle-right');
-        }
+    var isOpen = localStorage.getItem('db-open-' + db) === 'true';
+
+    if (isOpen) {
+        tableList.classList.remove('collapse');
+        icon.classList.remove('fa-angle-right');
+        icon.classList.add('fa-angle-down');
+    }
+
+    toggleBtn.addEventListener('click', function() {
+        toggleDbCollapse(db, tableList, icon);
     });
 });
+
+document.querySelectorAll('.db-toggle').forEach(function(dbLink) {
+    dbLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        var db = this.getAttribute('data-db');
+        var tableList = document.getElementById('tables-' + db);
+        var icon = document.querySelector('.toggle-table[data-db="' + db + '"] i');
+
+        var isCollapsed = tableList.classList.contains('collapse');
+        if (isCollapsed) {
+            toggleDbCollapse(db, tableList, icon);
+        }
+
+        loadDbContent(this.getAttribute('data-url'));
+    });
+});
+
+function toggleDbCollapse(db, tableList, icon) {
+    var isCollapsed = tableList.classList.contains('collapse');
+    if (isCollapsed) {
+        tableList.classList.remove('collapse');
+        icon.classList.remove('fa-angle-right');
+        icon.classList.add('fa-angle-down');
+        localStorage.setItem('db-open-' + db, 'true');
+    } else {
+        tableList.classList.add('collapse');
+        icon.classList.remove('fa-angle-down');
+        icon.classList.add('fa-angle-right');
+        localStorage.setItem('db-open-' + db, 'false');
+    }
+}
+
+function loadDbContent(url) {
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            const container = document.querySelector('.content-with-sidebar');
+            if (container) {
+                container.innerHTML = html;
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load DB content:', error);
+        });
+}
 JS;
 
 $this->registerJs($js);
 ?>
-
-<style>
-
-</style>
