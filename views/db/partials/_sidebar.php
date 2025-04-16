@@ -40,7 +40,8 @@ use yii\helpers\Url;
                                 <?php foreach ($tablesPerDb[$db] as $table): ?>
                                     <li class="text-muted small" style="white-space: nowrap;" data-table="<?= Html::encode($table) ?>">
                                         <a href="<?= Url::to(['db/view-table', 'db' => $db, 'table' => $table]) ?>"
-                                           class="text-decoration-none">
+                                           class="text-decoration-none table-link"
+                                           data-url="<?= Url::to(['db/view-table', 'db' => $db, 'table' => $table]) ?>">
                                             <?= Html::encode($table) ?>
                                         </a>
                                     </li>
@@ -150,6 +151,30 @@ function loadDbContent(url) {
             console.error('Failed to load DB content:', error);
         });
 }
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('.table-link');
+    if (link) {
+        e.preventDefault();
+        const url = link.getAttribute('data-url');
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            const container = document.querySelector('.content-with-sidebar');
+            if (container) {
+                container.innerHTML = html;
+                window.history.pushState({}, '', url);
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load table view:', error);
+        });
+    }
+});
 
 JS;
 
