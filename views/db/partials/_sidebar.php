@@ -23,7 +23,7 @@ use yii\helpers\Url;
         <?php foreach ($databases as $db): ?>
             <li class="mb-2">
                 <div class="d-flex align-items-start">
-                    <span class="toggle-table text-primary me-2" data-db="<?= Html::encode($db) ?>" style="cursor:pointer; font-size: 1.1rem;">
+                    <span class="toggle-table text-primary me-2" data-db="<?= Html::encode($db) ?>" style="font-size: 1.1rem;">
                         <i class="fas fa-angle-right"></i>
                     </span>
 
@@ -117,18 +117,25 @@ function toggleDbCollapse(db, tableList, icon) {
         icon.classList.add('fa-angle-down');
         localStorage.setItem('db-open-' + db, 'true');
 
-
         let lastTable = tableList.querySelector('li') ? tableList.querySelector('li').getAttribute('data-table') : null;
         if (lastTable) {
             localStorage.setItem('last-opened-table-' + db, lastTable);
         }
+
+        lastDbClicked = db; 
+
     } else {
         tableList.classList.add('collapse');
         icon.classList.remove('fa-angle-down');
         icon.classList.add('fa-angle-right');
         localStorage.setItem('db-open-' + db, 'false');
+
+        if (lastDbClicked === db) {
+            lastDbClicked = null; 
+        }
     }
 }
+
 
 function loadDbContent(url) {
     fetch(url)
