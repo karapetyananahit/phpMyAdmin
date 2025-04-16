@@ -38,7 +38,7 @@ use yii\helpers\Url;
                         <ul class="list-unstyled ms-4 mt-1 table-list collapse" id="tables-<?= Html::encode($db) ?>">
                             <?php if (!empty($tablesPerDb[$db])): ?>
                                 <?php foreach ($tablesPerDb[$db] as $table): ?>
-                                    <li class="text-muted small" style="white-space: nowrap;">
+                                    <li class="text-muted small" style="white-space: nowrap;" data-table="<?= Html::encode($table) ?>">
                                         <a href="<?= Url::to(['db/view-table', 'db' => $db, 'table' => $table]) ?>"
                                            class="text-decoration-none">
                                             <?= Html::encode($table) ?>
@@ -56,6 +56,8 @@ use yii\helpers\Url;
 
 <?php
 $js = <<<JS
+let lastDbClicked = null;
+
 document.querySelectorAll('.toggle-table').forEach(function(toggleBtn) {
     var db = toggleBtn.getAttribute('data-db');
     var tableList = document.getElementById('tables-' + db);
@@ -69,26 +71,43 @@ document.querySelectorAll('.toggle-table').forEach(function(toggleBtn) {
         icon.classList.add('fa-angle-down');
     }
 
-    toggleBtn.addEventListener('click', function() {
+    toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); 
         toggleDbCollapse(db, tableList, icon);
     });
 });
 
+
 document.querySelectorAll('.db-toggle').forEach(function(dbLink) {
     dbLink.addEventListener('click', function(e) {
         e.preventDefault();
-        var db = this.getAttribute('data-db');
-        var tableList = document.getElementById('tables-' + db);
-        var icon = document.querySelector('.toggle-table[data-db="' + db + '"] i');
+        const db = this.getAttribute('data-db');
+        const url = this.getAttribute('data-url');
+        const tableList = document.getElementById('tables-' + db);
+        const icon = document.querySelector('.toggle-table[data-db="' + db + '"] i');
 
-        var isCollapsed = tableList.classList.contains('collapse');
-        if (isCollapsed) {
+
+        if (tableList.classList.contains('collapse')) {
             toggleDbCollapse(db, tableList, icon);
         }
+        
+        if (lastDbClicked !== db) {
+            lastDbClicked = db;
+            loadDbContent(url);
+        }
 
-        loadDbContent(this.getAttribute('data-url'));
+        let lastTable = localStorage.getItem('last-opened-table-' + db);
+        if (lastTable) {
+            let tableItem = document.querySelector('#tables-' + db + ' li[data-table="' + lastTable + '"]');
+            if (tableItem) {
+                tableList.classList.remove('collapse');
+                icon.classList.remove('fa-angle-right');
+                icon.classList.add('fa-angle-down');
+            }
+        }
     });
 });
+
 
 function toggleDbCollapse(db, tableList, icon) {
     var isCollapsed = tableList.classList.contains('collapse');
@@ -97,6 +116,12 @@ function toggleDbCollapse(db, tableList, icon) {
         icon.classList.remove('fa-angle-right');
         icon.classList.add('fa-angle-down');
         localStorage.setItem('db-open-' + db, 'true');
+
+
+        let lastTable = tableList.querySelector('li') ? tableList.querySelector('li').getAttribute('data-table') : null;
+        if (lastTable) {
+            localStorage.setItem('last-opened-table-' + db, lastTable);
+        }
     } else {
         tableList.classList.add('collapse');
         icon.classList.remove('fa-angle-down');
@@ -118,6 +143,7 @@ function loadDbContent(url) {
             console.error('Failed to load DB content:', error);
         });
 }
+
 JS;
 
 $this->registerJs($js);
