@@ -9,12 +9,17 @@ use yii\helpers\Url;
 <div class="sidebar-wrapper border-end pe-2 bg-white shadow-sm"
      style="width: 300px; height: 100vh; position: fixed; top: 0; left: 0; overflow-y: auto; background-color: white; z-index: 1000;">
     <div class="text-center py-3 border-bottom bg-white sticky-top" style="z-index: 1010;">
-        <h5 class="mb-0">phpMyAdmin</h5>
+        <h5 class="mb-0">
+            <a href="<?= Url::to(['db/index']) ?>" class="text-dark text-decoration-none ajax-head-link" data-url="<?= Url::to(['db/index']) ?>">
+                phpMyAdmin
+            </a>
+        </h5>
     </div>
     <div class="d-flex justify-content-between align-items-center py-3 px-3 border-bottom bg-light sticky-top">
         <h5 class="mb-0"><i class="fas fa-database me-2"></i>Databases</h5>
-
-        <a href="<?= Url::to(['db/create-database']) ?>" class="btn btn-sm btn-outline-success">
+        <a href="<?= Url::to(['db/create-database']) ?>"
+           class="btn btn-sm btn-outline-success ajax-link"
+           data-url="<?= Url::to(['db/create-database']) ?>">
             <i class="fas fa-plus me-1"></i>New
         </a>
     </div>
@@ -58,6 +63,55 @@ use yii\helpers\Url;
 <?php
 $js = <<<JS
 let lastDbClicked = null;
+document.addEventListener('click', function(e) {
+    const headLink = e.target.closest('.ajax-head-link');
+    if (headLink) {
+        e.preventDefault();
+        const url = headLink.getAttribute('data-url');
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            const container = document.querySelector('.content-with-sidebar');
+            if (container) {
+                container.innerHTML = html;
+                window.history.pushState({}, '', url);
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load head link content:', error);
+        });
+    }
+});
+
+document.addEventListener('click', function(e) {
+    const ajaxLink = e.target.closest('.ajax-link');
+    if (ajaxLink) {
+        e.preventDefault();
+        const url = ajaxLink.getAttribute('data-url');
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            const container = document.querySelector('.content-with-sidebar');
+            if (container) {
+                container.innerHTML = html;
+                window.history.pushState({}, '', url);
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load content via AJAX:', error);
+        });
+    }
+});
 
 document.querySelectorAll('.toggle-table').forEach(function(toggleBtn) {
     var db = toggleBtn.getAttribute('data-db');
@@ -77,7 +131,6 @@ document.querySelectorAll('.toggle-table').forEach(function(toggleBtn) {
         toggleDbCollapse(db, tableList, icon);
     });
 });
-
 
 document.querySelectorAll('.db-toggle').forEach(function(dbLink) {
     dbLink.addEventListener('click', function(e) {
@@ -109,7 +162,6 @@ document.querySelectorAll('.db-toggle').forEach(function(dbLink) {
     });
 });
 
-
 function toggleDbCollapse(db, tableList, icon) {
     var isCollapsed = tableList.classList.contains('collapse');
     if (isCollapsed) {
@@ -136,7 +188,6 @@ function toggleDbCollapse(db, tableList, icon) {
         }
     }
 }
-
 
 function loadDbContent(url) {
     fetch(url)

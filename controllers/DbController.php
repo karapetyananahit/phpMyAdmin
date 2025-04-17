@@ -10,7 +10,9 @@ class DbController extends Controller
 {
     public function actionIndex()
     {
-        return $this->render('index');
+        return Yii::$app->request->isAjax
+            ? $this->renderPartial('index')
+            : $this->render('index');
     }
     public function getAllDatabases()
     {
@@ -37,7 +39,9 @@ class DbController extends Controller
 
     public function actionCreateDatabase()
     {
-        return $this->render('create-database');
+        return Yii::$app->request->isAjax
+            ? $this->renderPartial('partials/_create_database')
+            : $this->render('partials/_create_database');
     }
 
     public function actionSaveDatabase()
