@@ -6,7 +6,7 @@ use yii\helpers\Url;
 /** @var array $tables */
 
 ?>
-<li class="mb-2">
+<li class="mb-2" id="sidebar-db-<?= Html::encode($db) ?>">
     <div class="d-flex align-items-start">
         <span class="toggle-table text-primary me-2" data-db="<?= Html::encode($db) ?>" style="font-size: 1.1rem;">
             <i class="fas fa-angle-right"></i>

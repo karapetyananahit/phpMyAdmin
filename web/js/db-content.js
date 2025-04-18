@@ -60,3 +60,62 @@ $(document).on('click', '.browse-link', function(event) {
         }
     });
 });
+
+$(document).on('click', '.drop-db-btn', function (e) {
+    e.preventDefault();
+    const url = $(this).attr('href');
+    const dbName = $(this).data('db');
+
+    if (!confirm(`Are you sure you want to drop the database "${dbName}"?`)) {
+        return;
+    }
+
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+            _csrf: yii.getCsrfToken(),
+        },
+        success: function (response) {
+            if (response.success) {
+                $(`#sidebar-db-${dbName}`).remove();
+
+                sessionStorage.setItem('dropSuccessMessage', response.message);
+
+                history.pushState(null, '', '/');
+
+                $.ajax({
+                    url: '/',
+                    type: 'GET',
+                    success: function (homeContent) {
+                        $('.content-with-sidebar').html(homeContent);
+
+                        const msg = sessionStorage.getItem('dropSuccessMessage');
+                        if (msg) {
+                            const $alert = $(`<div class="alert alert-success drop-msg">${msg}</div>`);
+                            $('.content-with-sidebar').prepend($alert);
+                            sessionStorage.removeItem('dropSuccessMessage');
+
+                            setTimeout(function () {
+                                $alert.fadeOut(500, function () {
+                                    $(this).remove();
+                                });
+                            }, 3000);
+                        }
+
+                    },
+                    error: function (xhr) {
+                        console.error('Failed to load homepage:', xhr.responseText);
+                        $('.content-with-sidebar').html('<div class="alert alert-danger">Failed to load homepage</div>');
+                    }
+                });
+
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function (xhr) {
+            console.error('Drop DB AJAX error:', xhr.responseText);
+        }
+    });
+});

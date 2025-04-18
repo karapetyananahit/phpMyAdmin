@@ -7,8 +7,15 @@ $types = ['INT', 'VARCHAR(255)', 'TEXT', 'DATE', 'DATETIME', 'BOOLEAN'];
 /** @var string $db */
 /** @var array $tables */
 ?>
-
-<h3>Database: <?= Html::encode($db) ?></h3>
+<div class="d-flex justify-content-between">
+    <h3>Database: <?= Html::encode($db) ?></h3>
+    <p>
+        <?= Html::a('Drop Database', ['db/drop-database', 'db' => $db], [
+            'class' => 'btn btn-danger drop-db-btn',
+            'data-db' => $db,
+        ]) ?>
+    </p>
+</div>
 
 <?php if (!empty($tables)): ?>
     <table class="table table-bordered table-hover mt-3">
@@ -85,8 +92,3 @@ $types = ['INT', 'VARCHAR(255)', 'TEXT', 'DATE', 'DATETIME', 'BOOLEAN'];
 
 <?php ActiveForm::end(); ?>
 
-<?php
-
-$this->registerJsFile('@web/js/db-content.js', ['depends' => [\yii\web\JqueryAsset::class]]);
-
-?>

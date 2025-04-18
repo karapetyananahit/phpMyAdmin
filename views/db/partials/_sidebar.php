@@ -24,9 +24,9 @@ use yii\helpers\Url;
         </a>
     </div>
 
-    <ul class="list-unstyled ps-3 pe-2 pt-2">
+    <ul class="list-unstyled ps-3 pe-2 pt-2 db-list" >
         <?php foreach ($databases as $db): ?>
-            <li class="mb-2">
+            <li class="mb-2" id="sidebar-db-<?= Html::encode($db) ?>">
                 <div class="d-flex align-items-start">
                     <span class="toggle-table text-primary me-2" data-db="<?= Html::encode($db) ?>" style="font-size: 1.1rem;">
                         <i class="fas fa-angle-right"></i>

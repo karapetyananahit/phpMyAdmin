@@ -147,6 +147,24 @@ class DbController extends Controller
                 'rows' => $rows,
             ]);
     }
+    public function actionDropDatabase($db)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        try {
+            Yii::$app->db->createCommand("DROP DATABASE `$db`")->execute();
+            return [
+                'success' => true,
+                'message' => "Database '$db' was dropped successfully.",
+                'db' => $db,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error dropping database: ' . $e->getMessage(),
+            ];
+        }
+    }
 
 
 }

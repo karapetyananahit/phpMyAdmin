@@ -22,6 +22,7 @@ $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.
 $this->registerCssFile('@web/css/db.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 $this->registerJsFile('@web/js/db-sidebar.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 $this->registerJsFile('@web/js/db-create.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerJsFile('@web/js/db-content.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 
 ?>
 <?php $this->beginPage() ?>
