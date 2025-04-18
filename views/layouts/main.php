@@ -21,6 +21,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
 $this->registerCssFile('@web/css/db.css', ['depends' => [\yii\bootstrap5\BootstrapAsset::class]]);
 $this->registerJsFile('@web/js/db-sidebar.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerJsFile('@web/js/db-create.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 
 ?>
 <?php $this->beginPage() ?>

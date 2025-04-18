@@ -18,7 +18,6 @@ class DbController extends Controller
     {
         return Yii::$app->db->createCommand('SHOW DATABASES')->queryColumn();
     }
-
     public function actionLoadTables($db)
     {
         $tables = Yii::$app->db->createCommand("SHOW TABLES FROM `$db`")->queryColumn();
@@ -35,33 +34,46 @@ class DbController extends Controller
             'tables' => $tables
         ]);
     }
-
-
     public function actionCreateDatabase()
     {
         return Yii::$app->request->isAjax
             ? $this->renderPartial('partials/_create_database')
             : $this->render('partials/_create_database');
     }
-
     public function actionSaveDatabase()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $dbName = Yii::$app->request->post('db_name');
 
-        if (!$dbName) {
+        if (empty($dbName)) {
             return ['success' => false, 'message' => 'Database name is required.'];
         }
 
+        $db = Yii::$app->db;
+        $dbName = preg_replace('/[^a-zA-Z0-9_]/', '_', $dbName);
+
         try {
-            Yii::$app->db->createCommand("CREATE DATABASE `$dbName`")->execute();
-            return ['success' => true, 'message' => "Database '$dbName' created."];
-        } catch (\yii\db\Exception $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
+            $check = $db->createCommand("SHOW DATABASES LIKE :name", [':name' => $dbName])->queryScalar();
+            if ($check) {
+                return ['success' => false, 'message' => "Database '$dbName' already exists."];
+            }
+
+            $db->createCommand("CREATE DATABASE `$dbName`")->execute();
+
+            return [
+                'success' => true,
+                'message' => "Database '$dbName' created.",
+                'newDbHtml' => $this->renderPartial('partials/_sidebar_db_item', [
+                    'db' => $dbName,
+                    'tables' => [],
+                ]),
+            ];
+
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => 'Error creating database: ' . $e->getMessage()];
         }
     }
-
     public function actionDropTable($db, $table)
     {
         Yii::$app->db->createCommand("DROP TABLE `$db`.`$table`")->execute();
@@ -85,7 +97,7 @@ class DbController extends Controller
 
         $columnDefs = [];
         foreach ($columns as $col) {
-            $name = preg_replace('/[^a-zA-Z0-9_]/', '', $col['name']); // sanitize
+            $name = preg_replace('/[^a-zA-Z0-9_]/', '', $col['name']);
             $type = strtoupper($col['type']);
             $columnDefs[] = "`$name` $type";
         }
